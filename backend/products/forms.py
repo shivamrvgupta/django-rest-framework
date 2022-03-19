@@ -1,11 +1,9 @@
-from curses import meta
-from dataclasses import field
 from django import forms
-from .models import Products
+from .models import Product
 
-class ProductForm(form.ModelForm):
+class ProductForm(forms.ModelForm):
     class Meta:
-        model = Products
+        model = Product
         fields =  [
             'title',
             'content',

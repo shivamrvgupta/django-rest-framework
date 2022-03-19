@@ -1,18 +1,19 @@
-from cgitb import lookup
 from django.http import Http404
-from rest_framework import generics, mixins
+from rest_framework import generics, mixins, permissions, authentication
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 # from django.http import Http404
-
-from .models import Products
+from .permissions import IsStaffEditorPermissions
+from .models import Product
 from .serializers import ProductSerializer
 # Create your views here.
 
 class ProductListCreateAPIView(generics.ListCreateAPIView):
-    queryset = Products.objects.all()
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    authentication_classes = [authentication.SessionAuthentication]
+    permission_classes = [IsStaffEditorPermissions]
 
     def perform_create(self, serializer):
         # serializer.save(user=self.request.user)
@@ -22,15 +23,14 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
         if content is None:
             content = title
         serializer.save(content=content)
-        # Send a Django signals
 
 product_list_create_view = ProductListCreateAPIView.as_view()
 
 class ProductDetailAPIView(generics.RetrieveAPIView):
-    queryset = Products.objects.all()
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
     # lookupfield = 'pk'
-    # Products.objects.get(pk='abc')
+    # Product.objects.get(pk='abc')
 
 product_detail_view = ProductDetailAPIView.as_view()        
 
@@ -38,14 +38,15 @@ product_detail_view = ProductDetailAPIView.as_view()
 #     '''
 #     Not gonna use this method
 #     '''
-#     queryset = Products.objects.all()
+#     queryset = Product.objects.all()
 #     serializer_class = ProductSerializer
 
 # product_list_view = ProductListAPIView.as_view()
 
 class ProductUpdateAPIView(generics.UpdateAPIView):
-    queryset = Products.objects.all()
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    permission_classes = [permissions.DjangoModelPermissions]
     lookupfield = 'pk'
     
     def perform_update(self, serializer):
@@ -57,7 +58,7 @@ product_update_view = ProductUpdateAPIView.as_view()
 
 
 class ProductDeleteAPIView(generics.DestroyAPIView):
-    queryset = Products.objects.all()
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookupfield = 'pk'
     
@@ -71,7 +72,7 @@ class ProductMixinView(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     generics.GenericAPIView):
-    queryset = Products.objects.all()
+    queryset = Product.objects.all()
     serializer_class = ProductSerializer
     lookupfield = 'pk'
 
@@ -102,14 +103,14 @@ def product_alt_view(requests, pk=None, *args, **kwargs):
     method = requests.method 
     if method == 'GET':
         if pk is not None:
-            # queryset = Products.objects.filter(pk=pk)
+            # queryset = Product.objects.filter(pk=pk)
             # if not queryset.exists(): 
             #     raise Http404
-            obj = get_object_or_404(Products, pk=pk)
+            obj = get_object_or_404(Product, pk=pk)
             data = ProductSerializer(queryset, many=False).data
             return Response(data)
         else:
-            queryset = Products.objects.all()
+            queryset = Product.objects.all()
             data = ProductSerializer(queryset, many=True).data
             return Response(data)
 
