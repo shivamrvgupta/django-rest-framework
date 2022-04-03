@@ -1,4 +1,4 @@
-import imp
+import email
 from django.http import Http404
 from rest_framework import generics, mixins, permissions, authentication
 from rest_framework.decorators import api_view
@@ -24,7 +24,7 @@ class ProductListCreateAPIView(
         content = serializer.validated_data.get('content') or None
         if content is None:
             content = title
-        serializer.save(content=content)
+        serializer.save(content=content) #form.save() , model.save()
 
 product_list_create_view = ProductListCreateAPIView.as_view()
 
