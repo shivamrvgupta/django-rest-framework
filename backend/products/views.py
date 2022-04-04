@@ -1,4 +1,7 @@
 import email
+from http.client import REQUEST_URI_TOO_LONG
+import re
+from urllib import request
 from django.http import Http404
 from rest_framework import generics, mixins, permissions, authentication
 from rest_framework.decorators import api_view
@@ -24,7 +27,16 @@ class ProductListCreateAPIView(
         content = serializer.validated_data.get('content') or None
         if content is None:
             content = title
-        serializer.save(content=content) #form.save() , model.save()
+        serializer.save(user=self.request.user, content=content) #form.save() , model.save()
+
+    def get_queryset(self, *args, **kwargs):
+        qs = super().get_queryset(*args, **kwargs)
+        request = self.request
+        user = request.user
+        if not user.is_authenticated:
+            return Product.objects.none()
+        print(request.user)    
+        return qs.filter(user=request.user)
 
 product_list_create_view = ProductListCreateAPIView.as_view()
 
