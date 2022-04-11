@@ -1,3 +1,4 @@
+from decimal import Inexact
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from .models import Product
@@ -13,7 +14,8 @@ def validate_title_no_hello(value):
         raise serializers.ValidationError(f"{value} is not allowed")
     return value    
 
-unique_product_title = UniqueValidator(queryset=Product.objects.all())
+unique_product_title = UniqueValidator(queryset=Product.objects.all(),
+    lookup='iexact')
 
 
-# 3:59:38 / 7:01:39
+# 3:59:38 / 7:01:39 -- video paused

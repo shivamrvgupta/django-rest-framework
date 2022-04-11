@@ -9,16 +9,20 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 # from django.http import Http404
 from api.authentication import TokenAuthentication  
-from api.mixins import StaffEditorPermissionsMixin
+from api.mixins import (
+    StaffEditorPermissionsMixin, UserQuerySetMixin
+    )
 from .models import Product
 from .serializers import ProductSerializer
 # Create your views here.
 
 class ProductListCreateAPIView(
+    UserQuerySetMixin,
     StaffEditorPermissionsMixin,
     generics.ListCreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    allow_staff_view = False
 
     def perform_create(self, serializer):
         # serializer.save(user=self.request.user)
@@ -41,6 +45,7 @@ class ProductListCreateAPIView(
 product_list_create_view = ProductListCreateAPIView.as_view()
 
 class ProductDetailAPIView(
+    UserQuerySetMixin,
     StaffEditorPermissionsMixin,
     generics.RetrieveAPIView):
     queryset = Product.objects.all()
@@ -60,6 +65,7 @@ product_detail_view = ProductDetailAPIView.as_view()
 # product_list_view = ProductListAPIView.as_view()
 
 class ProductUpdateAPIView(
+    UserQuerySetMixin,
     StaffEditorPermissionsMixin,
     generics.UpdateAPIView):
     queryset = Product.objects.all()
@@ -75,6 +81,7 @@ product_update_view = ProductUpdateAPIView.as_view()
 
 
 class ProductDeleteAPIView(
+    UserQuerySetMixin,  
     StaffEditorPermissionsMixin,
     generics.DestroyAPIView):
     queryset = Product.objects.all()
